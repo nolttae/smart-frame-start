@@ -10,29 +10,91 @@
             padding: 0;
             overflow: hidden; /* 스크롤바 제거 */
             background-color: black; /* 배경색을 검은색으로 설정 */
+            font-family: Arial, sans-serif;
+            color: white;
             display: flex; /* Flexbox를 사용하여 이미지를 중앙에 정렬 */
             justify-content: center; /* 가로 중앙 정렬 */
             align-items: center; /* 세로 중앙 정렬 */
             height: 100vh; /* 뷰포트 높이 전체 사용 */
         }
-        #single-image-container {
+        #image-container {
             width: 100vw;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        #single-image {
+        #display-image {
             max-width: 100%; /* 이미지가 컨테이너 너비를 넘지 않도록 */
             max-height: 100%; /* 이미지가 컨테이너 높이를 넘지 않도록 */
             object-fit: contain; /* 이미지가 잘리지 않고 화면에 맞게 */
         }
+        #message {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 1.2em;
+            font-size: 1.2em;
+            color: white;
+            cursor: pointer;
+            z-index: 10;
+            display: none; /* 초기에는 숨겨두고 필요할 때 JavaScript로 표시 */
+        }
     </style>
 </head>
 <body>
-    <div id="single-image-container">
-        <img id="single-image" src="20150623_191740.jpg" alt="스마트 액자 이미지">
+    <div id="image-container">
+        <img id="display-image" src="20150623_191740.jpg" alt="스마트 액자 이미지">
     </div>
 
-    </body>
+    <audio id="background-music" loop></audio>
+    <div id="message">음악 재생을 위해 화면을 터치해주세요.</div>
+
+    <script>
+        // 주문별로 이 변수들이 채워집니다.
+        const imageToDisplay = '20150623_191740.jpg'; // 표시할 사진 파일 이름 (대소문자 정확히 일치)
+        const musicToLoad = 'music.mp3'; // 음악 파일 이름 (예: 'music.mp3'). 파일이 없다면 비워두세요.
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const displayImage = document.getElementById('display-image');
+            const music = document.getElementById('background-music');
+            const messageDiv = document.getElementById('message');
+
+            // 이미지 소스 설정 (확실하게)
+            displayImage.src = imageToDisplay;
+
+            // 음악 재생 함수
+            function playMusic() {
+                if (musicToLoad && music) {
+                    music.src = musicToLoad;
+                    music.play().then(() => {
+                        // 음악 재생 성공 시 메시지 숨기기
+                        messageDiv.style.display = 'none';
+                    }).catch(error => {
+                        // 자동 재생이 차단되었을 경우 메시지 표시
+                        console.error('음악 재생 실패 (자동 재생 차단 가능성):', error);
+                        messageDiv.style.display = 'block'; // 메시지 표시
+                        messageDiv.textContent = '음악 재생을 위해 화면을 터치해주세요.';
+                    });
+                } else {
+                    // 음악 파일이 없으면 메시지 숨기기
+                    messageDiv.style.display = 'none';
+                }
+            }
+
+            // 페이지 로드 시 음악 재생 시도
+            playMusic();
+
+            // 메시지 div 클릭 시 음악 재생 재시도 (사용자 상호작용)
+            if (messageDiv) {
+                messageDiv.addEventListener('click', () => {
+                    playMusic();
+                });
+            }
+        });
+    </script>
+</body>
 </html>
